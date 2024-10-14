@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class MovimientoPersonaje : MonoBehaviour
 {
-    private float h, v;
-    Rigidbody rb;
-    [SerializeField] float fuerzaMovimiento;
+    public float moveSpeed = 5f;
+    public float jumpForce = 5f; 
+    private Rigidbody rb;
+    private bool isGrounded;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,12 +17,37 @@ public class MovimientoPersonaje : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
+        float moveHorizontal = Input.GetAxis("Horizontal"); 
+        float moveVertical = Input.GetAxis("Vertical"); 
+
+        
+        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+
+        
+        rb.MovePosition(transform.position + movement * moveSpeed * Time.deltaTime);
+
+       
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            Jump();
+        }
     }
 
-    private void FixedUpdate()
+    void Jump()
     {
-        rb.AddForce(new Vector3(h, 0, v).normalized * fuerzaMovimiento, ForceMode.Force);
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        isGrounded = false; 
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Suelo")) 
+        {
+            isGrounded = true;
+        }
+    }
+
+
 }
+  
+
